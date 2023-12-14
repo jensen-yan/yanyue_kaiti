@@ -51,19 +51,95 @@
 %-
 %-> Titlepage information
 %-
-\input{Tex/Frontinfo}%
+%-> 中文封面信息
+%-
+\schoollogo{scale=0.112}{ucas_logo}% 校徽
+\title{多架构软硬协同二进制翻译的实现和优化}% 题目
+\author{晏悦}% 作者姓名
+\authorid{202128013229037}% 学号
+\advisor{王剑}% 指导老师
+\advisortitle{研究员}% 指导老师职务
+\degree{硕士}% 学位：硕士、博士
+\degreetype{工学}% 学位类别：理学、工学、工程、医学等
+\major{计算机系统结构}% 二级学科专业名称
+\field{体系结构}% 研究方向
+\institute{中国科学院计算技术研究所}% 院所
+%\institute{中国科学院力学研究所\\流固耦合实验室}% 多行院所名称示例
+%\chinesedate{2014~年~06~月}% 日期
+%---------------------------------------------------------------------------%
 \begin{document}
 %-
 %-> Frontmatter: title page, abstract, content list, symbol list, preface
 %-
 \pagenumbering{roman}% page numbers with roman style
-\input{Tex/Frontmatter}% title page, abstract
+% \input{Tex/Frontmatter}% title page, abstract
+
+%---------------------------------------------------------------------------%
+%-> Frontmatter
+%---------------------------------------------------------------------------%
+%-
+%-> 生成封面
+%-
+\maketitle% 生成中文封面
+%-
+%-> 目录
+%-
+\tableofcontents% 生成目录
+%---------------------------------------------------------------------------%
 %-
 %-> Mainmatter
 %-
 \clearpage
 \pagenumbering{arabic}% restart page numbers with arabic style
-\input{Tex/Mainmatter}% main content
+% \input{Tex/Mainmatter}% main content
+%---------------------------------------------------------------------------%
+%->> Main content
+%---------------------------------------------------------------------------%
+\section{选题的背景及意义}
+
+\subsection{选题背景}
+
+关于riscv生态，以及各类指令集生态的问题。
+
+阐述二进制翻译器的问题，以及二进制翻译器的优势。
+
+
+
+\subsubsection{背景}
+
+
+\subsection{选题意义}
+
+
+
+\subsubsection{意义}
+
+
+
+\section{国内外本学科领域的发展现状与趋势}
+
+
+
+\section{课题主要研究内容、预期目标}
+
+
+
+\section{拟采用的研究方法、技术路线、实验方案及其可行性分析}
+
+
+
+\section{已有科研基础与所需的科研条件}
+
+
+
+\section{研究工作计划与进度安排}
+
+
+\nocite{*}% 使文献列表显示所有参考文献（包括未引用文献）
+%---------------------------------------------------------------------------%
+
+
+
 %-
 %-> Backmatter: bibliography, glossary, index
 %-
