@@ -178,7 +178,7 @@
     在硬件平台用二进制翻译运行客户程序$B_g$的时间记为$T_{bt}$，在同一硬件平台直接运行宿主程序$B_h$的时间记为$T_h$。
     二进制翻译的性能则为翻译运行时间除以原生运行时间$\frac{T_{bt}}{T_h}$。
 }
-相对较低，例如QEMU\cite{bellardQEMUFastPortable2005}虽然支持多架构应用，但在翻译运行SPECCPU 2017\cite{SPECCPU2017}程序时候，仅有约10\%的性能。商业二进制翻译器也存在性能损失，
+相对较低，例如QEMU\cite{bellardQEMUFastPortable2005}虽然支持多架构应用，但在翻译运行SPEC CPU 2017\cite{SPECCPU2017}程序时候，仅有约10\%的性能。商业二进制翻译器也存在性能损失，
 如苹果的Rosetta2\cite{RosettaTranslationEnvironment, RunningIntelBinaries}、
 华为的ExaGear\cite{KunPengExaGear}、
 和龙芯的LATX\cite{LoongArchEnv2022, LoongArch2023}，
@@ -439,18 +439,57 @@ X86 微码缓存的引入和优化为 X86 架构的超标量乱序执行提供�
 \subsubsection{软件环境}
 
 \begin{itemize}
-  \item \textbf{二进制翻译器：} 我们复用了部分LLVM objdump的代码发现逻辑，实现了静态二进制翻译器，每个翻译器代码量级仅在千行。由于SPEC 2017 不存在代码发现问题，目前尚未实现动态二进制翻译器。
+  \item \textbf{二进制翻译器：} 我们复用了部分LLVM objdump\cite{llvm_project}的代码发现逻辑，使用了Capstone\cite{CapstoneEngine2023}作为反汇编器（LLVM 和Capstone都支持多指令集，也方便后续添加新的指令集支持），并添加好翻译规则，实现了静态二进制翻译器，每个翻译器代码量级仅在千行。由于SPEC CPU 2017 不存在代码发现问题，目前尚未实现动态二进制翻译器。
 
-  \item \textbf{SimPoint 技术：} 由于Gem5的模拟执行效率约为真机的万分之一，为了更快速有效地进行性能评估，我们使用 SimPoint技术\cite{sherwoodAutomaticallyCharacterizingLarge2002} 对 SPEC CPU2017 进行切片，使用ELFie技术\cite{patilELFiesExecutableRegion2021}对二进制文件进行切片，以提高模拟效率。
+  \item \textbf{SimPoint 技术：} 由于Gem5的模拟执行效率约为真机的万分之一，为了更快速有效地进行性能评估，我们使用 SimPoint技术\cite{sherwoodAutomaticallyCharacterizingLarge2002} 对 SPEC CPU 2017 进行切片，使用ELFie技术\cite{patilELFiesExecutableRegion2021}对二进制文件进行切片，以提高模拟效率。
 \end{itemize}
 
 
 
 \section{已有科研基础与所需的科研条件}
 
+本章节首先展示微译器在X86上SPEC 2017上的翻译运行结果，然后介绍RISCV在CoreMark测试集上的运行效果。
 
+\subsection{微译器在X86上的翻译运行结果}
+
+图\ref{img:ucache_ipc}展示了微译器在X86上SPEC 2017上的翻译运行结果，相对于未修改过的X86指令缓存模式进行了归一化。可以看到，微译器在SPEC 2017上的性能接近于原生运行，平均性能为92.3\%，并且一大半的浮点型测试集的性能损失在1\%以内。
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1\linewidth]{./plot/ucache_ipc.pdf}
+  \caption{微译器运行SPEC CPU 2017的性能，相对于未修改过的X86指令缓存模式进行了归一化。}
+  \label{img:ucache_ipc}
+\end{figure}
+
+图\ref{img:new_cache_miss}展示了微译器在X86上SPEC 2017上的每千条指令的未命中次数，根据计算，每千条指令的未命中次数和性能之间的皮尔森相关系数为-0.93，说明未命中次数和性能之间存在很强的负相关性。这也说明了微译器的性能主要受到了未命中次数的影响。
+
+我们在X86上运行了CoreMark测试集，得到了性能为99\%，对应的每千条指令的未命中次数为0.9，也符合上述规律，这主要在于程序的取指行为，CoreMark程序中主要为核心循环计算，时间局部性和空间局部性都很好，因此未命中次数较少，性能也较好。即便经过微译器的预翻译文件膨胀，也能够在X86上保持较好的性能。
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1\linewidth]{./plot/new_cache_miss.pdf}
+  \caption{微译器运行SPEC CPU 2017的每千条指令的未命中次数。}
+  \label{img:new_cache_miss}
+\end{figure}
+
+\subsection{RISCV在CoreMark测试集上的运行效果}
+
+我们在RISCV上运行了CoreMark测试集，得到了性能为95\%，对应的每千条指令的未命中次数为1.1，也符合上述规律。
+
+RISCV 相对于X86的CoreMark 还有一定的性能差距，主要由于还没有添加硬件返回栈支持，导致对于函数调用的支持不够完善，因此性能有所下降。
+
+同时RISCV目前对于压缩指令支持还不够完善，导致翻译出来的微码编码较长，导致AOT文件相对更大，也会导致性能下降。
 
 \section{研究工作计划与进度安排}
+
+以下为本课题的工作计划与进度安排：
+
+\begin{itemize}
+  \item 2023年12月-2023年12月：添加RISCV硬件返回栈支持，预估有5\%左右性能提升。
+  \item 2023年12月-2024年2月：继续添加完所有的指令翻译和微码添加，目标为成功运行SPEC CPU 2000。
+  \item 2024年2月-2024年3月：RISCV 到微码的指令编码继续压缩，减少每条指令平均长度。
+  \item 2024年3月-2024年4月：撰写硕士毕业论文。
+\end{itemize}
 
 
 % \nocite{*}% 使文献列表显示所有参考文献（包括未引用文献）
